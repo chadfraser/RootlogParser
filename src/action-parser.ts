@@ -1,21 +1,28 @@
 import { Action, ActionCombat, ActionCraft, ActionDominance, ActionGainVP, ActionMove, ActionReveal, Card, Faction, Item, ItemState, Piece, Suit } from './interfaces';
 import { parseConspiracyAction, parseCultAction, parseDuchyAction, parseEyrieAction, parseMarquiseAction, parseRiverfolkAction, parseVagabondAction, parseWoodlandAction } from './parsers';
+import { formRegex } from './utils/regex-former';
 
-const ALL_FACTIONS = Object.values(Faction).join('') + '#';
-const ALL_SUITS = Object.values(Suit).join('');
-const ALL_ITEMS = Object.values(Item).join('');
-const ALL_PIECES = Object.values(Piece).join('');
-const ALL_ITEM_STATE = Object.values(ItemState).join('');
+const COMBAT_REGEX = formRegex('[Faction]X<Faction><Clearing>[<Suit>@[<Suit>@]][(<Roll>,<Roll>)]');
+const MOVE_PIECE_REGEX = formRegex('[Number]<Piece>[Location]->[Location]');
+const MOVE_CARD_REGEX = formRegex('[Number]<Card>[Clearing]->[Clearing]');
+const MOVE_ITEM_REGEX = formRegex('[Number]<Item>[Clearing]->[Clearing]');
+const CARD_REGEX = formRegex('[Suit]#<Card>');
+const REVEAL_REGEX = formRegex('[Number][Card][Faction]^[Faction]');
 
-const COMBAT_REGEX = new RegExp(`^([${ALL_FACTIONS}])?X([${ALL_FACTIONS}])([0-9]{1,2})`);
-const REVEAL_REGEX = new RegExp(`^([0-9]{1,2})?([${ALL_SUITS}])?([${ALL_FACTIONS}])?\\^([${ALL_FACTIONS}])?`);
-const MOVE_ITEM_REGEX = new RegExp(`^%([${ALL_ITEMS}]{1,2})?([${ALL_FACTIONS}])?\\$?([${ALL_ITEM_STATE}])?->([${ALL_ITEM_STATE}])?([${ALL_FACTIONS}])?\\$?`);
+console.log(COMBAT_REGEX, MOVE_CARD_REGEX, REVEAL_REGEX);
 
 // parse a VP action, defaults to +1
 // TODO: include faction
 function parseVP(action: string): ActionGainVP {
   const count = action.split('++')[1] || '1';
   return { vp: +count };
+}
+
+// parse a VP-losing action, defaults to -1
+// TODO: include faction
+function parseVPReduction(action: string): ActionGainVP {
+  const count = action.split('--')[1] || '1';
+  return { vp: -count };
 }
 
 // parse a dominance action
@@ -34,7 +41,7 @@ function parseCraft(action: string): ActionCraft {
   }
 
   // craft a card
-  return { craftCard: craft[0] as Card };
+  return { craftCard: craft as Card };
 }
 
 // parse a combat action
@@ -49,6 +56,20 @@ function parseCombat(action: string, takingFaction: Faction): ActionCombat {
 
 // parse a move action
 function parseMove(action: string, takingFaction: Faction): ActionMove {
+  
+  const move = {
+    num: 0,
+    thing: null,
+    start: null,
+    end: null
+  };
+
+  return move;
+
+}
+
+// parse a move action
+function parseSpecialMove(action: string, takingFaction: Faction): ActionMove {
   
   const move = {
     num: 0,
@@ -88,6 +109,10 @@ export function parseAction(action: string, faction: Faction): Action {
 
   if(action.includes('++') && !action.includes('->')) {
     return parseVP(action);
+  }
+
+  if(action.includes('--')) {
+    return parseVPReduction(action);
   }
 
   if(action.includes('++') && action.includes('->')) {

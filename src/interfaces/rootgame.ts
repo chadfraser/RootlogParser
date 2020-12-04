@@ -55,11 +55,18 @@ export enum MarquiseSpecial {
   Wood = 't'
 }
 
-export enum EyrieSpecial {
+export enum EyrieDecreeColumnSpecial {
   Recruit = 'r',
   Move = 'm',
   Battle = 'x',
   Build = 'b'
+}
+
+export enum EyrieLeaderSpecial {
+  Builder = 'builder',
+  Charismatic = 'charismatic',
+  Commander = 'commander',
+  Despot = 'despot'
 }
 
 export enum WoodlandSpecial {
@@ -72,6 +79,18 @@ export enum VagabondItemSpecial {
   Satchel = 's',
   Damaged = 'd',
   Track = 't'
+}
+
+export enum VagabondCharacterSpecial {
+  Adventurer = 'adventurer',
+  Arbiter = 'arbiter',
+  Harrier = 'harrier',
+  Ranger = 'range',
+  Ronin = 'ronin',
+  Scoundrel = 'scoundrel',
+  Thief = 'thief',
+  Tinker = 'tinker',
+  Vagrant = 'vagrant'
 }
 
 export enum VagabondRelationshipStatus {
@@ -121,53 +140,62 @@ export enum Card {
   Dominance = 'dom',
 
   // base deck
-  Armor = 'armor',
+  Armorers = 'armor',
   BetterBurrowBank = 'bank',
   BrutalTactics = 'brutal',
   CommandWarren = 'command',
-  Cob = 'cob',
+  Cobbler = 'cob',
   Codebreakers = 'codeb',
   FoxFavor = 'favorf',
   MouseFavor = 'favorm',
   RabbitFavor = 'favorr',
-  Royal = 'royal',
+  RoyalClaim = 'royal',
   Sappers = 'sap',
-  Scout = 'scout',
+  ScoutingParty = 'scout',
   StandAndDeliver = 'stand',
-  Tax = 'tax',
+  TaxCollectors = 'tax',
 
   // exiles and partisans
-  Boat = 'boat',
+  BoatBuilders = 'boat',
   CharmOffensive = 'charm',
   CoffinMakers = 'coffin',
-  CombatPlans = 'cplans',
+  CorvidPlanners = 'cplans',
   EyrieEmigre = 'emi',
   FalseOrders = 'false',
   FoxPartisans = 'fpart',
   RabbitPartisans = 'rpart',
   MousePartisans = 'mpart',
-  Informers = 'inform',
+  Informants = 'inform',
   LeagueOfExtraordinaryMice = 'league',
-  Engrave = 'engrave',
+  MasterEngravers = 'engrave',
   MurineBroker = 'murine',
   PropagandaBureau = 'prop',
   Saboteurs = 'sabo',
   SoupKitchens = 'soup',
   SwapMeet = 'swap',
-  Tun = 'tun'
+  Tunnels = 'tun'
 }
 
 export enum QuestCard {
   Errand = 'errand',
-  Bandits = 'bandits',
-  Bear = 'bear',
+  ExpelBandits = 'bandits',
+  FendOffABear = 'bear',
   Escort = 'escort',
-  Funds = 'funds',
-  Speech = 'speech',
-  Guard = 'guard',
-  Logs = 'logs',
-  Shed = 'shed'
+  Fundraising = 'funds',
+  GiveASpeech = 'speech',
+  GuardDuty = 'guard',
+  Logistics = 'logs',
+  RepairAShed = 'shed'
 }
+
+export const PiecesIncludingItems = Object.assign({}, MarquiseSpecial, WoodlandSpecial, RiverfolkSpecial, LizardSpecial, CorvidSpecial);
+export type SpecialPiece = typeof SpecialPiece;
+
+export const SpecialPiece = Object.assign({}, MarquiseSpecial, WoodlandSpecial, RiverfolkSpecial, LizardSpecial, CorvidSpecial);
+export type SpecialPiece = typeof SpecialPiece;
+
+export const SpecialCard = Object.assign({}, EyrieLeaderSpecial, VagabondCharacterSpecial, QuestCard);
+export type SpecialCard = typeof SpecialCard;
 
 export interface Turn {
   taker: Faction;

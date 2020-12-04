@@ -1,4 +1,4 @@
-import { Card, Faction, Item, Piece, Suit } from './rootgame';
+import { Card, Faction, Item, Piece, SpecialCard, SpecialPiece, Suit } from './rootgame';
 
 export type Action = ActionGainVP | ActionCraft | ActionMove | ActionDominance | ActionCombat | ActionReveal;
 
@@ -21,7 +21,7 @@ export interface ActionCombat {
 
 export interface ActionMove {
   num: number;
-  thing: Card | Item | Piece;
+  thing: Card | Item | Piece | SpecialCard | SpecialPiece;
   start: number | string;
   end: number | string;
 }
