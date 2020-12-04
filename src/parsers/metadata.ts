@@ -17,8 +17,8 @@ export function parseDeck(line: string): Deck {
 }
 
 // winner line format: Winner: <text>
-export function parseWinner(line: string): string {
-  return cleanText(line.split('Winner:')[1]);
+export function parseWinner(line: string): Faction[] {
+  return cleanText(line.split('Winner:')[1]).split('') as Faction[];
 }
 
 // pool line format: Pool: <factions...>

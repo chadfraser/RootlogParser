@@ -188,15 +188,6 @@ export enum QuestCard {
   RepairAShed = 'shed'
 }
 
-export const PiecesIncludingItems = Object.assign({}, MarquiseSpecial, WoodlandSpecial, RiverfolkSpecial, LizardSpecial, CorvidSpecial);
-export type SpecialPiece = typeof SpecialPiece;
-
-export const SpecialPiece = Object.assign({}, MarquiseSpecial, WoodlandSpecial, RiverfolkSpecial, LizardSpecial, CorvidSpecial);
-export type SpecialPiece = typeof SpecialPiece;
-
-export const SpecialCard = Object.assign({}, EyrieLeaderSpecial, VagabondCharacterSpecial, QuestCard);
-export type SpecialCard = typeof SpecialCard;
-
 export interface Turn {
   taker: Faction;
   actions: Action[];
@@ -210,6 +201,6 @@ export interface RootGame {
   pool?: Faction[];                             // the faction pool (if using a draft)
   players: Partial<Record<Faction, string>>;    // { [factionkey]: player }
   turns: Turn[];                                // all of the game turns in order
-  winner: string;                               // the winner of the game
+  winner: Faction[];                            // the winner(s) of the game
 
 }
