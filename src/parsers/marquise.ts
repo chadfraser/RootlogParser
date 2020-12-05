@@ -1,11 +1,7 @@
-import { Action, ActionMove, MarquiseSpecial } from '../interfaces';
-import { formRegex } from '../utils/regex-former';
-
-const MARQUISE_MOVE_PIECE_REGEX = formRegex('[Number]<MarquisePiece>[Location]->[Location]');
+import { ActionMove, Faction, MarquiseSpecial } from '../interfaces';
+import { MOVE_REGEX, parseMove } from '../action-parser'
 
 /**
- * #despot->$  matches [token -> $] so be careful!
- * 
  * t_k->2       Keep [from board] to clearing 2
  * b_w->2       Workshop [from board] to clearing 2
  * b_s+b_r->10  Sawmill + Recruiter [from board] to clearing 10
@@ -34,21 +30,43 @@ const MARQUISE_MOVE_PIECE_REGEX = formRegex('[Number]<MarquisePiece>[Location]->
 
 export function parseMarquiseAction(action: string): ActionMove {
 
-  if (action.includes('t_k') && !action.includes('->')) {
-    return { num: 0, thing: MarquiseSpecial.Keep, start: 0, end: 0 };
+  // [Number|||countMoved]<Component|||componentMoved>[Location|||origin]->[Location|||destination]
+
+  if (MOVE_REGEX.test(action)) {
+    const result = action.match(MOVE_REGEX);
+    const num = +result.groups.countMoved;
+    let component = result.groups.componentMoved;
+    // if (Object.values(MarquiseSpecial).includes(component)) {
+    //   component = component as MarquiseSpecial;
+    // }
+    const start = result.groups.origin;
+    const end = result.groups.destination;
+    return { num: num, thing: component, start: start, end: end };
   }
 
-  if (action.includes('t_k') && !action.includes('->')) {
-    return { num: 0, thing: MarquiseSpecial.Keep, start: 0, end: 0 };
-  }
+  // if (action.includes('b_s') && !action.includes('->')) {
+  //   const result = action.match(MOVE_REGEX);
+  //   const num = +result.groups.countMoved;
+  //   const start = result.groups.origin;
+  //   const end = result.groups.destination;
+  //   return { num: num, thing: MarquiseSpecial.Sawmill, start: start, end: end };
+  // }
 
-  if (action.includes('t_k') && !action.includes('->')) {
-    return { num: 0, thing: MarquiseSpecial.Keep, start: 0, end: 0 };
-  }
+  // if (action.includes('b_w') && !action.includes('->')) {
+  //   const result = action.match(MOVE_REGEX);
+  //   const num = +result.groups.countMoved;
+  //   const start = result.groups.origin;
+  //   const end = result.groups.destination;
+  //   return { num: num, thing: MarquiseSpecial.Workshop, start: start, end: end };
+  // }
 
-  if (action.includes('t_k') && !action.includes('->')) {
-    return { num: 0, thing: MarquiseSpecial.Keep, start: 0, end: 0 };
-  }
+  // if (action.includes('b_r') && !action.includes('->')) {
+  //   const result = action.match(MOVE_REGEX);
+  //   const num = +result.groups.countMoved;
+  //   const start = result.groups.origin;
+  //   const end = result.groups.destination;
+  //   return { num: num, thing: MarquiseSpecial.Recruiter, start: start, end: end };
+  // }
 
   console.error(`Could not parse Marquise action: "${action}" - no handlers for this.`);
   return null;

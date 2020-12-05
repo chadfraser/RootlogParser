@@ -1,11 +1,11 @@
 import { Card, Faction, Item, ItemState, Piece, Suit, MarquiseSpecial, EyrieDecreeColumnSpecial, EyrieLeaderSpecial, WoodlandSpecial, VagabondItemSpecial, RiverfolkSpecial, LizardSpecial, DuchySpecial, CorvidSpecial } from '../interfaces';
 
-const ALL_FACTIONS = Object.values(Faction).join('') + '#';
-const ALL_SUITS = Object.values(Suit).join('');
-const ALL_ITEMS = Object.values(Item).join('');
-const ALL_PIECE_TYPES = Object.values(Piece).join('');
-const ALL_ITEM_STATE = Object.values(ItemState).join('');
-const ALL_CARD_NAMES = `(${Object.values(Card).join('|')})`;  // one of the card's codenames, in full
+export const ALL_FACTIONS = Object.values(Faction).join('') + '#';
+export const ALL_SUITS = Object.values(Suit).join('');
+export const ALL_ITEM_TYPES = Object.values(Item).join('');
+export const ALL_PIECE_TYPES = Object.values(Piece).join('');
+export const ALL_ITEM_STATE = Object.values(ItemState).join('');
+export const ALL_CARD_NAMES = `(${Object.values(Card).join('|')})`;  // one of the card's codenames, in full
 // a card's codename or one of the Eyrie leader's names, in full
 // const ALL_CARDS_WITH_SPECIALS = `(${ALL_CARDS}|${Object.values(EyrieLeaderSpecial)})`;
 
@@ -15,53 +15,71 @@ const ALL_CARD_NAMES = `(${Object.values(Card).join('|')})`;  // one of the card
 // |${Object.values(CorvidSpecial).join('|')})`
 
 const CLEARING = '(1[0-2]|[1-9])'; // a number from 1-12
-const FOREST = `${CLEARING}(_${CLEARING}){2,}`;  // 3+ adjacent clearings, separated by underscores
-const FACTION_BOARD = `(${ALL_FACTIONS})?\$`;  // $, optionally preceeded by a faction's character code 
-const HAND = `${ALL_FACTIONS}`;  // The faction's character code
-const EYRIE_DECREE_COLUMN =  `(${Object.values(EyrieDecreeColumnSpecial).join('|')})`;  // r, m, x, b, for cards in the Decree
-const VAGABOND_BOARD_AREAS = `[${Object.values(VagabondItemSpecial).join('')}]`;  // s, d, or t, for items (satchel, damaged, track)
+const FOREST = `(${CLEARING}(_${CLEARING}){2,})`;  // 3+ adjacent clearings, separated by underscores
+const FACTION_BOARD = `(([${ALL_FACTIONS}])?\$)`;  // $, optionally preceeded by a faction's character code 
+const HAND = `([${ALL_FACTIONS}])`;  // The faction's character code
+// const EYRIE_DECREE_COLUMN =  `(${Object.values(EyrieDecreeColumnSpecial).join('|')})`;  // r, m, x, b, for cards in the Decree
+// const VAGABOND_BOARD_AREAS = `[${Object.values(VagabondItemSpecial).join('')}]`;  // s, d, or t, for items (satchel, damaged, track)
 
-const ALL_LOCATIONS = `${FOREST}|${CLEARING}|${FACTION_BOARD}|${HAND}|${ALL_ITEM_STATE}|${EYRIE_DECREE_COLUMN}|${VAGABOND_BOARD_AREAS}`
+const ALL_LOCATIONS = `(${FOREST}|${CLEARING}|${FACTION_BOARD}|${HAND}|[${ALL_ITEM_STATE}])`//|${EYRIE_DECREE_COLUMN}|${VAGABOND_BOARD_AREAS}`
+
+// [Faction]<PieceType>[_<subtype>]
+const PIECE_REGEX_STRING = `([${ALL_FACTIONS}])?([${ALL_PIECE_TYPES}])(_[a-z])?`;   // TODO: check this alpha doesn't cause false positives
+// [Suit]#<CardName>
+const CARD_REGEX_STRING = `([${ALL_SUITS}])?#(${ALL_CARD_NAMES})`;
+// %<ItemType> or %_ to represent 'all items'
+const ITEM_REGEX_STRING = `(%[${ALL_ITEM_TYPES}_])`;
+// piece, card, or item
+const COMPONENT_REGEX_STRING = `(${PIECE_REGEX_STRING}|${CARD_REGEX_STRING}|${ITEM_REGEX_STRING})`;
 
 const parseForRegexString = function(base: string): string {
-    switch (base.toLowerCase()) {
+    const [groupCode, groupName] = base.split('|||');
+    switch (groupCode.toLowerCase()) {
         case ('number'):
-            return '\\d*';
+            return parseForRegexString2('\\d*', groupName);
         case ('piece'):
-            // [Faction]<PieceType>[_<subtype>]
-            return `(${ALL_FACTIONS})?(${ALL_PIECE_TYPES})(_[a-z])?`;   // TODO: check this alpha doesn't cause false positives
+            return parseForRegexString2(PIECE_REGEX_STRING, groupName);
         case ('card'):
-            // [Faction]<PieceType>[_<subtype>]
-            return `(${ALL_FACTIONS})?(${ALL_PIECE_TYPES})(_[a-z])?`;   // TODO: check this alpha doesn't cause false positives
+            return parseForRegexString2(CARD_REGEX_STRING, groupName);
+        case ('item'):
+            return parseForRegexString2(ITEM_REGEX_STRING, groupName);
         case ('component'):
-            // piece, card, or item
-            return `((${ALL_FACTIONS})?(${ALL_PIECE_TYPES})(_[a-z])?)|()`;
-        case ('pieces'):
+            return parseForRegexString2(COMPONENT_REGEX_STRING, groupName);
+        case ('combinedcomponent'):
             const QUANTITY = '\\d*';
-            const LOCATION = `(${ALL_LOCATIONS})`;
-            return `[${ALL_PIECES_WITH_SPECIALS}]\\d*(\\+[${ALL_PIECES_WITH_SPECIALS}])*`; // one piece, optionally p+#p+...+#p
-        case ('marquisepiece'):
-            return `(${Object.values(MarquiseSpecial).join('|')}|[${ALL_PIECES}])`;
-        case ('marquisepieces'):  // TODO: #pL+#pL+#pL ...  number, piece, AND location
-            const PIECE_REGEX = `(${Object.values(MarquiseSpecial).join('|')}|[${ALL_PIECES}])`;    
-            // return `[${PIECE_REGEX}]\\d*(\\+[${PIECE_REGEX}])*`; // one piece, optionally p+#p+...+#p`
-            // ([Number]<Piece>+[Number]<Piece>+...+[Number]<Piece>)<Location>
-            return `(\\d*${PIECE_REGEX})+(${ALL_LOCATIONS})`;
-        case ('card'):
-            return ALL_CARDS;
+            return parseForRegexString2(`(((${QUANTITY})?${COMPONENT_REGEX_STRING})+${ALL_LOCATIONS})`, groupName); // one component, optionally (#p+#p+...+#p)<location>
         case ('clearing'):
-            return CLEARING;
+            return parseForRegexString2(CLEARING, groupName);
+        case ('factionboard'):
+            return parseForRegexString2(FACTION_BOARD, groupName);
         case ('location'):
-            return `(${ALL_LOCATIONS})`;
+            return parseForRegexString2(ALL_LOCATIONS, groupName);
+        case ('craftable'):
+            return parseForRegexString2(`(${ALL_CARD_NAMES}|[${ITEM_REGEX_STRING}])`, groupName);
+        // case ('marquisepiece'):
+        //     return parseForRegexString2(`(${Object.values(MarquiseSpecial).join('|')}|[${ALL_PIECES}])`, groupName);
+        // case ('marquisepieces'):  // TODO: #pL+#pL+#pL ...  number, piece, AND location
+        //     const PIECE_REGEX = `(${Object.values(MarquiseSpecial).join('|')}|[${ALL_PIECES}])`;    
+        //     // return parseForRegexString2(`[${PIECE_REGEX}]\\d*(\\+[${PIECE_REGEX}])*`; // one piece, optionally p+#p+...+#p, groupName)`
+        //     // ([Number]<Piece>+[Number]<Piece>+...+[Number]<Piece>)<Location>
+        //     return parseForRegexString2(`(\\d*${PIECE_REGEX})+(${ALL_LOCATIONS})`, groupName);
         case ('suit'):
-            return `[${ALL_SUITS}]`;
+            return parseForRegexString2(`[${ALL_SUITS}]`, groupName);
         case ('faction'):
-            return `[${ALL_FACTIONS}]`;
+            return parseForRegexString2(`[${ALL_FACTIONS}]`, groupName);
         case ('roll'):
-            return `[0-3]`;
+            return parseForRegexString2(`[0-3]`, groupName);
         default:
-            return base;
+            return parseForRegexString2(groupCode, groupName);
     }
+}
+
+const parseForRegexString2 = function(parsedRegex: string, groupName: string): string {
+    let regexString = '(';
+    if (groupName !== undefined) {
+        regexString = `(?<${groupName}>`;
+    }
+    return `${regexString}${parsedRegex})`;
 }
 
 
@@ -82,7 +100,7 @@ export function formRegex(baseString: string): RegExp {
             finalParsedRegexString += '->';  // Re-add the removed delimiter
         }
 
-        [...splitString].forEach(c => {
+        [...splitString].forEach((c, idx) => {
             switch (c) {
                 case '[':
                     if (openOptionalSections === 0 && openMandatorySections === 0) {
@@ -112,7 +130,10 @@ export function formRegex(baseString: string): RegExp {
                     }
                     break;
                 case '<':
-                    if (openOptionalSections === 0 && openMandatorySections === 0) {
+                    if (splitString.length > idx && splitString[idx+1] === '-') {
+                        currentString += c;
+                        break;
+                    } else if (openOptionalSections === 0 && openMandatorySections === 0) {
                         // We are not nested in brackets -> what was written up to this point was literal text
                         parsedRegexString += currentString;
                     } else {
@@ -142,7 +163,10 @@ export function formRegex(baseString: string): RegExp {
                     currentString += c;
             }
         });
-        finalParsedRegexString += `${parsedRegexString}(\\+${parsedRegexString})*`;
+        parsedRegexString += currentString;
+        // TODO: Fix since it's wrecking named capture groups
+        // finalParsedRegexString += `${parsedRegexString}(+|$)*`// `${parsedRegexString}(\\+${parsedRegexString})*`;
+        finalParsedRegexString += parsedRegexString;// `${parsedRegexString}(\\+${parsedRegexString})*`;
     });
-    return new RegExp(finalParsedRegexString);
+    return new RegExp('finalParsedRegexString');
 }

@@ -3,27 +3,38 @@ import { Deck, Faction, Map, Suit, Turn } from '../interfaces';
 
 
 function cleanText(str: string): string {
+  if (str == null) {
+    return str;
+  }
   return str.trim();
 }
 
-// winner line format: Winner: <text>
+// map line format: Map: <text>
 export function parseMap(line: string): Map {
   return cleanText(line.split('Map:')[1]) as Map;
 }
 
-// winner line format: Winner: <text>
+// deck line format: Deck: <text>
 export function parseDeck(line: string): Deck {
   return cleanText(line.split('Deck:')[1]) as Deck;
 }
 
-// winner line format: Winner: <text>
+// winner line format: Winner: <factions...>
 export function parseWinner(line: string): Faction[] {
-  return cleanText(line.split('Winner:')[1]).split('') as Faction[];
+  const factions = cleanText(line.split('Winner:')[1]);
+  if (factions == null) {
+    return [];
+  }
+  return factions.split('') as Faction[];
 }
 
 // pool line format: Pool: <factions...>
 export function parsePool(line: string): Faction[] {
-  return cleanText(line.split('Pool:')[1]).split('') as Faction[];
+  const factions = cleanText(line.split('Pool:')[1]);
+  if (factions == null) {
+    return [];
+  }
+  return factions.split('') as Faction[];
 }
 
 // player line format: <Faction>: Player Name
@@ -34,12 +45,18 @@ export function parsePlayer(line: string): string {
 // clearing line format: Clearings: <suit>X, <suit>Y (x/y = clearing num, 1-indexed)
 export function parseClearings(line: string): Suit[] {
   const suitPos = [];
+  const clearings = line.split('Clearings:')[1];
+  if (clearings == null) {
+    return [];
+  }
 
-  line.split('Clearings:')[1].split(',').map(x => x.trim()).forEach((suitWithPos, idx) => {
+  clearings.split(',').map(x => x.trim()).forEach((suitWithPos, idx) => {
     const suit = suitWithPos.substring(0, 1);
     let pos = +suitWithPos.substring(1);
 
-    if(isNaN(pos)) pos = idx + 1;
+    if (isNaN(pos)) {
+      pos = idx + 1;
+    }
 
     suitPos[pos - 1] = suit as Suit;
   })

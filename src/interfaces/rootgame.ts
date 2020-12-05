@@ -75,6 +75,7 @@ export enum WoodlandSpecial {
   MouseBase = 'b_m'
 }
 
+// TODO: Add Q for vagabond?
 export enum VagabondItemSpecial {
   Satchel = 's',
   Damaged = 'd',
@@ -113,16 +114,40 @@ export enum RiverfolkPriceSpecial {
   Mercenaries = 'm'
 }
 
+export enum RiverfolkFundsSpecial {
+  Funds = 'f'
+}
+
 export enum LizardSpecial {
   FoxGarden = 'b_f',
   RabbitGarden = 'b_r',
   MouseGarden = 'b_m'
 }
 
+export enum LizardOutcastSpecial {
+  Outcast = 'o',
+  HatedOutcast = 'h'
+}
+
 export enum DuchySpecial {
   Citadel = 'b_c',
-  Market = 'b_m',
+  Market = 'b_m'
+}
+
+export enum DuchyBurrowSpecial {
   Burrow = '0'
+}
+
+export enum DuchyMinisterSpecial {
+  Foremole = 'foremole',
+  Captain = 'captain',
+  Marshal = 'marshal',
+  Brigadier = 'brigadier',
+  Banker = 'banker',
+  Mayor = 'mayor',
+  Duchess = 'duchess',
+  Baron = 'baron',
+  Earl = 'earl'
 }
 
 export enum CorvidSpecial {
@@ -187,6 +212,16 @@ export enum QuestCard {
   Logistics = 'logs',
   RepairAShed = 'shed'
 }
+
+export const SpecialPiece = Object.assign({}, MarquiseSpecial, WoodlandSpecial, RiverfolkSpecial, LizardSpecial, DuchySpecial, CorvidSpecial);
+export type SpecialPiece = typeof SpecialPiece;
+
+// export const SpecialCard = Object.assign({}, EyrieLeaderSpecial, VagabondCharacterSpecial, DuchyMinisterSpecial);
+// export type SpecialCard = typeof SpecialCard;
+
+export const SpecialLocation = Object.assign({}, EyrieDecreeColumnSpecial, VagabondItemSpecial, VagabondRelationshipStatus, QuestCard,
+  DuchyBurrowSpecial);
+export type SpecialLocation = typeof SpecialLocation;
 
 export interface Turn {
   taker: Faction;

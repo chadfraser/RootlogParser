@@ -1,8 +1,14 @@
-import { Card, Faction, Item, Piece, SpecialCard, SpecialPiece, Suit } from './rootgame';
+import { Card, Faction, Item, SpecialLocation, Piece, SpecialPiece, Suit } from './rootgame';
 
 export type Action = ActionGainVP | ActionCraft | ActionMove | ActionDominance | ActionCombat | ActionReveal;
 
 export interface ActionGainVP {
+  faction: Faction,
+  vp: number;
+}
+
+export interface ActionLoseVP {
+  faction: Faction,
   vp: number;
 }
 
@@ -21,9 +27,9 @@ export interface ActionCombat {
 
 export interface ActionMove {
   num: number;
-  thing: Card | Item | Piece | SpecialCard | SpecialPiece;
-  start: number | string;
-  end: number | string;
+  thing: Card | Item | Piece | SpecialPiece;
+  start: number | string | SpecialLocation;
+  end: number | string | SpecialLocation;
 }
 
 export interface ActionDominance {
@@ -32,7 +38,7 @@ export interface ActionDominance {
 
 export interface ActionReveal {
   num: number;
-  suit: Suit;
+  card: Card;
   revealer: Faction;
   target?: Faction;
 }
